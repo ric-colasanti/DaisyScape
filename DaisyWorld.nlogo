@@ -4,29 +4,29 @@ globals [
   number-whites
   number-of-plants
 ]
+
 patches-own[
   plant
   temperature
   disturbance
 ]
+
 to disturb
   if ( random-float 1.0 > disturbance )[
     set plant 0
   ]
 end
 
+
 to grow
   let seed-threshold ((0.1457 * temperature) - (0.0032 * (temperature ^ 2)) - 0.6443) ; from 2006 Uri Wilensky
   if plant = 0 [
     if (random-float 1.0 < seed-threshold) [
-      ifelse (random-float 1.0 < number-whites / number-of-plants)[
+      ifelse (random-float 1.0 < ( number-whites + 1 ) / ( number-of-plants + 2 ) )[
         set plant 1
-        set number-whites number-whites + 1
       ][
         set plant 2
-        set number-blacks number-blacks + 1
       ]
-      set number-of-plants number-of-plants + 1
     ]
   ]
 end
@@ -48,15 +48,48 @@ to calc-temperature  ;; patch procedure
 
   ]
   ;; form 2006 Uri Wilensky
-  ;; local-heating is calculated as logarithmic function of solar-luminosity
-  ;; where a absorbed-luminosity of 1 yields a local-heating of 80 degrees C
-  ;; and an absorbed-luminosity of .5 yields a local-heating of approximately 30 C
-  ;; and a absorbed-luminosity of 0.01 yields a local-heating of approximately -273 C
+
   ifelse absorbed-luminosity > 0
       [set local-heating 72 * ln absorbed-luminosity + 80]
       [set local-heating 80]
   set temperature ((temperature + local-heating) / 2)
-     ;; set the temperature at this patch to be the average of the current temperature and the local-heating effect
+end
+
+to update-display
+  set  number-of-plants 0
+  set number-whites 0
+  ask patches [
+    ifelse plant = 0 [
+      set pcolor red
+    ][
+      set  number-of-plants number-of-plants + 1
+      ifelse plant = 1 [
+        set pcolor white
+        set number-whites number-whites + 1
+      ][
+        set pcolor black
+        set number-blacks number-blacks + 1
+      ]
+    ]
+  ]
+end
+
+to setup
+  clear-all
+  ask patches [
+    set plant random 3
+    set disturbance 0.1
+  ]
+  update-display
+end
+
+to go
+  ask patches [
+    disturb
+    calc-temperature
+    grow
+  ]
+  update-display
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -140,11 +173,45 @@ solar-luminosity
 solar-luminosity
 0
 1
-0.8
+0.66
 0.01
 1
 NIL
 HORIZONTAL
+
+BUTTON
+38
+215
+105
+248
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+128
+222
+191
+255
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
