@@ -13,9 +13,12 @@ Beyond Daisyworld: Introducing DaisyScape
 
 While Daisyworld offers a simplified view, DaisyScape takes things a step further. Here, the sun's brightness remains constant, but the focus shifts to how the daisies themselves are used. Researchers will explore four different scenarios:
 
-Unrestricted Harvest: Imagine harvesting all daisies, regardless of color. How will this impact the temperature?
-Selective White Harvest: What happens if only white daisies are harvested? Will the planet overheat?
-Black Market for Black Daisies: In this scenario, only black daisies are harvested. Will the planet enter a perpetual ice age?
-White Daisys as "sugar", Black Daisys as spice: This scenario explores a situation where white daisies are considered a valuable resource ("sugar") and black daisies are a desired spice. Will this selective harvesting maintain a stable temperature?
+1. Unrestricted Harvest: Imagine harvesting all daisies, regardless of color. How will this impact the temperature?
+
+2. Selective White Harvest: What happens if only white daisies are harvested? Will the planet overheat?
+
+3. Black Market for Black Daisies: In this scenario, only black daisies are harvested. Will the planet enter a perpetual ice age?
+
+4. White Daisys as "sugar", Black Daisys as spice: This scenario explores a situation where white daisies are considered a valuable resource ("sugar") and black daisies are a desired spice. Will this selective harvesting maintain a stable temperature?
 
 By studying these scenarios in DaisyScape, researchers can gain insights into the potential consequences of exploiting natural resources and how ecosystems might respond.
