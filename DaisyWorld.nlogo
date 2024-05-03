@@ -34,15 +34,12 @@ end
 to calc-temperature  ;; patch procedure
   let absorbed-luminosity 0
   let local-heating 0
-  ifelse plant = 0
-  [
+  ifelse plant = 0 [
     set absorbed-luminosity ((1 - albedo-of-surface) * solar-luminosity)
-  ]
-  [
-    if plant = 1 [
+  ][
+    ifelse plant = 1 [
       set absorbed-luminosity ((1 - albedo-of-white-daisys) * solar-luminosity)
-    ]
-    if plant = 2 [
+    ][
       set absorbed-luminosity ((1 - albedo-of-black-daisys) * solar-luminosity)
     ]
 
@@ -81,14 +78,21 @@ to setup
     set disturbance 0.1
   ]
   update-display
+  reset-ticks
 end
 
 to go
+  set global-temperature 0
+  let ccount 0
+  tick
   ask patches [
     disturb
     calc-temperature
     grow
+    set global-temperature global-temperature + temperature
+    set ccount ccount + 1
   ]
+  set global-temperature global-temperature / ccount
   update-display
 end
 @#$#@#$#@
@@ -173,7 +177,7 @@ solar-luminosity
 solar-luminosity
 0
 1
-0.66
+0.69
 0.01
 1
 NIL
@@ -197,13 +201,13 @@ NIL
 1
 
 BUTTON
-128
-222
-191
-255
+137
+217
+200
+250
 NIL
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -212,6 +216,17 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+31
+314
+163
+359
+NIL
+global-temperature
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
