@@ -1,9 +1,68 @@
+globals [
+  global-temperature    ;; the average temperature of the patches in the world
+  number-blacks
+  number-whites
+  number-of-plants
+]
+patches-own[
+  plant
+  temperature
+  disturbance
+]
+to disturb
+  if ( random-float 1.0 > disturbance )[
+    set plant 0
+  ]
+end
 
+to grow
+  let seed-threshold ((0.1457 * temperature) - (0.0032 * (temperature ^ 2)) - 0.6443) ; from 2006 Uri Wilensky
+  if plant = 0 [
+    if (random-float 1.0 < seed-threshold) [
+      ifelse (random-float 1.0 < number-whites / number-of-plants)[
+        set plant 1
+        set number-whites number-whites + 1
+      ][
+        set plant 2
+        set number-blacks number-blacks + 1
+      ]
+      set number-of-plants number-of-plants + 1
+    ]
+  ]
+end
+
+to calc-temperature  ;; patch procedure
+  let absorbed-luminosity 0
+  let local-heating 0
+  ifelse plant = 0
+  [
+    set absorbed-luminosity ((1 - albedo-of-surface) * solar-luminosity)
+  ]
+  [
+    if plant = 1 [
+      set absorbed-luminosity ((1 - albedo-of-white-daisys) * solar-luminosity)
+    ]
+    if plant = 2 [
+      set absorbed-luminosity ((1 - albedo-of-black-daisys) * solar-luminosity)
+    ]
+
+  ]
+  ;; form 2006 Uri Wilensky
+  ;; local-heating is calculated as logarithmic function of solar-luminosity
+  ;; where a absorbed-luminosity of 1 yields a local-heating of 80 degrees C
+  ;; and an absorbed-luminosity of .5 yields a local-heating of approximately 30 C
+  ;; and a absorbed-luminosity of 0.01 yields a local-heating of approximately -273 C
+  ifelse absorbed-luminosity > 0
+      [set local-heating 72 * ln absorbed-luminosity + 80]
+      [set local-heating 80]
+  set temperature ((temperature + local-heating) / 2)
+     ;; set the temperature at this patch to be the average of the current temperature and the local-heating effect
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+277
 10
-647
+714
 448
 -1
 -1
@@ -26,6 +85,66 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+SLIDER
+30
+34
+229
+67
+albedo-of-surface
+albedo-of-surface
+0
+1
+0.4
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+31
+72
+229
+105
+albedo-of-white-daisys
+albedo-of-white-daisys
+0
+1
+0.75
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+31
+110
+232
+143
+albedo-of-black-daisys
+albedo-of-black-daisys
+0
+1
+0.25
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+32
+146
+232
+179
+solar-luminosity
+solar-luminosity
+0
+1
+0.8
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -51,8 +170,16 @@ By studying these scenarios in DaisyScape, researchers can gain insights into th
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+### V1 ( global seed dispersal )
+a patch has ( owns ) 
+	1. plant: values 0 ( ground ) ,1 ( black ) ,2 ( white )
+	2. temperature 0-100
+	3. disturbance ( probability of plant death )
 
+Functions:
+	1. Set temp. this will be a function of 8 neighbours albedo
+	2. Grow. if plant == 0 The new state is a probability function of the patch temperature and the optimal germination temperature of daisies
+ 
 ## HOW TO USE IT
 
 (how to use the model, including a description of each of the items in the Interface tab)
