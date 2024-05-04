@@ -13,12 +13,9 @@ patches-own[
 to setup
   clear-all
   ask patches[
-    set ground random-float 1
-    set daisy-green random-float  ground
-    set daisy-blue 1 - ( ground + daisy-green )
-    let r int 255;; * ground
-    let g int 255 * daisy-green
-    let b int 255 * daisy-blue
+    set daisy-green random-float  0.2
+    set daisy-blue random-float  0.2
+    set ground 1 - ( daisy-green + daisy-blue )
 
     set pcolor scale-color red  ( 1 - ground ) 0 1
   ]
@@ -33,11 +30,14 @@ to go
   set total-blue 0
 
   ask patches[
-    let dg  daisy-green * mu-green * ground
-    let db  daisy-blue * mu-blue * ground
+    let g  daisy-green * mu-green * ground
+    let b  daisy-blue * mu-blue * ground
 
-    set daisy-green daisy-green + dg
-    set daisy-blue daisy-blue + db
+    let dg  daisy-green * death-rate
+    let db  daisy-blue * death-rate
+
+    set daisy-green daisy-green + g - dg
+    set daisy-blue daisy-blue + b - db
     set ground 1 - ( daisy-green + daisy-blue )
 
     set total-ground total-ground + ground
@@ -105,7 +105,7 @@ mu-green
 mu-green
 0
 1
-0.038
+0.35
 0.001
 1
 NIL
@@ -120,7 +120,7 @@ mu-blue
 mu-blue
 0
 1
-0.115
+0.363
 0.001
 1
 NIL
@@ -135,9 +135,9 @@ plot 1
 NIL
 NIL
 0.0
-10.0
+5.0
 0.0
-2.0
+1.0
 true
 false
 "" ""
@@ -147,10 +147,10 @@ PENS
 "pen-2" 1.0 0 -13345367 true "" "plot total-blue"
 
 BUTTON
-30
-193
-93
-226
+35
+219
+98
+252
 NIL
 go
 T
@@ -162,6 +162,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+30
+163
+202
+196
+death-rate
+death-rate
+0
+0.1
+0.034
+0.001
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
