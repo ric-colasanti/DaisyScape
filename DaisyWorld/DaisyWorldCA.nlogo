@@ -13,12 +13,15 @@ to setcolor
  set pcolor red
  if state = 0 [
     set pcolor red
+    set global_temperature global_temperature + temperature
  ]
  if state = 1 [
     set pcolor black
+    set global_temperature global_temperature + temperature + 5
  ]
  if state = 2 [
     set pcolor white
+    set global_temperature global_temperature + temperature - 5
  ]
 end
 
@@ -39,17 +42,25 @@ to go
   ask patches [
     if random-float 1 < disturbance [ set state 0 ]
   ]
+  set global_temperature 0
   ask patches with [ state = 0 ] [
     let w  count neighbors with [ state = 1 ]
     let b  count neighbors with [ state = 2 ]
-    set w w * ( 1 - 0.003265 * ( 22.5 - temperature ) ^ 2 )
-    set b b * ( 1 - 0.003265 * ( 22.5 - temperature ) ^ 2 )
+    set w w * ( 1 - 0.003265 * ( 22.5 - temperature - 5 ) ^ 2 )
+    set b b * ( 1 - 0.003265 * ( 22.5 - temperature + 5 ) ^ 2 )
     set b b + w
     let c random-float 8
     if c <= w [ set state 1 ]
     if c > w and c <= b [ set state 2 ]
+    if state = 0 [
+      let r  random 100
+      if r = 1 [ set state 1 ]
+      if r = 2 [ set state 2 ]
+    ]
     setcolor
   ]
+  set global_temperature global_temperature / ( 128 ^ 2 )
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -122,7 +133,7 @@ temperature
 temperature
 5
 40
-9.0
+22.0
 1
 1
 NIL
