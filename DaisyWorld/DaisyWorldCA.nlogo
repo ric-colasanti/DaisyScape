@@ -1,6 +1,13 @@
+globals[
+  sb_constant
+  global_temperature
+]
+
 patches-own[
   state
 ]
+
+
 
 to setcolor
  set pcolor red
@@ -17,6 +24,7 @@ end
 
 to setup
   clear-all
+  set sb_constant  5.669E-8
   ask patches[
     let c random 20
     set state 0
@@ -34,8 +42,8 @@ to go
   ask patches with [ state = 0 ] [
     let w  count neighbors with [ state = 1 ]
     let b  count neighbors with [ state = 2 ]
-    set w w * ( 1 - 0.003265 * ( 22.5 - temperature ) * ( 22.5 - temperature ) )
-    set b b * ( 1 - 0.003265 * ( 22.5 - temperature ) * ( 22.5 - temperature ) )
+    set w w * ( 1 - 0.003265 * ( 22.5 - temperature ) ^ 2 )
+    set b b * ( 1 - 0.003265 * ( 22.5 - temperature ) ^ 2 )
     set b b + w
     let c random-float 8
     if c <= w [ set state 1 ]
@@ -114,7 +122,7 @@ temperature
 temperature
 5
 40
-29.0
+9.0
 1
 1
 NIL
