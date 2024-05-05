@@ -29,14 +29,16 @@ end
 
 to go
   ask patches [
-    if random 10 = 0 [ set state 0 ]
+    if random-float 1 < disturbance [ set state 0 ]
   ]
   ask patches with [ state = 0 ] [
     let w  count neighbors with [ state = 1 ]
     let b  count neighbors with [ state = 2 ]
+    set w w * ( 1 - 0.003265 * ( 22.5 - temperature ) * ( 22.5 - temperature ) )
+    set b b * ( 1 - 0.003265 * ( 22.5 - temperature ) * ( 22.5 - temperature ) )
     set b b + w
-    let c random 9
-    if c < w [ set state 1 ]
+    let c random-float 8
+    if c <= w [ set state 1 ]
     if c > w and c <= b [ set state 2 ]
     setcolor
   ]
@@ -45,11 +47,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-608
-409
+734
+519
 -1
 -1
-6.0
+4.0
 1
 10
 1
@@ -59,10 +61,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--32
-32
--32
-32
+-64
+64
+-62
+62
 0
 0
 1
@@ -70,10 +72,10 @@ ticks
 30.0
 
 BUTTON
-32
-42
-99
-75
+20
+39
+87
+72
 NIL
 setup
 NIL
@@ -87,10 +89,10 @@ NIL
 1
 
 BUTTON
-35
-109
-98
-142
+22
+79
+85
+112
 NIL
 go
 T
@@ -102,6 +104,36 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+19
+187
+191
+220
+temperature
+temperature
+5
+40
+29.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+19
+151
+191
+184
+disturbance
+disturbance
+0
+0.5
+0.1
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
