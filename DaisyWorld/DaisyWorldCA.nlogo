@@ -1,65 +1,56 @@
-globals[
-  total-ground
-  total-green
-  total-blue
+patches-own[
+  state
+  state-next
 ]
 
-patches-own[
-  daisy-green
-  daisy-blue
-  ground
-]
-;pcolor (list rgb-red rgb-green rgb-blue)
+to setcolor
+ set pcolor red
+ if state = 0 [
+    set pcolor red
+ ]
+ if state = 1 [
+    set pcolor black
+ ]
+ if state = 2 [
+    set pcolor white
+ ]
+end
+
 to setup
   clear-all
   ask patches[
-    set daisy-green random-float  0.2
-    set daisy-blue random-float  0.2
-    set ground 1 - ( daisy-green + daisy-blue )
-
-    set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
+    let c random 20
+    set state 0
+    if c = 1 [ set state 1 ]
+    if c = 2 [ set state 2 ]
+    setcolor
   ]
   reset-ticks
 end
 
-
 to go
-
-  set total-ground 0
-  set total-green 0
-  set total-blue 0
-
-  ask patches[
-    let g  daisy-green * mu-green * ground
-    let b  daisy-blue * mu-blue * ground
-
-    let dg  daisy-green * death-rate
-    let db  daisy-blue * death-rate
-
-    set daisy-green daisy-green + g - dg
-    set daisy-blue daisy-blue + b - db
-    set ground 1 - ( daisy-green + daisy-blue )
-
-    set total-ground total-ground + ground
-    set total-green  total-green + daisy-green
-    set total-blue total-blue + daisy-blue
-
-    set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
+  ask patches [
+    if random 10 = 0 [ set state 0 ]
   ]
-  set total-ground total-ground / ( 32 * 32 )
-  set total-green total-green / ( 32 * 32 )
-  set total-blue total-blue / ( 32 * 32 )
-  tick
+  ask patches with [ state = 0 ] [
+    let w  count neighbors with [ state = 1 ]
+    let b  count neighbors with [ state = 2 ]
+    set b b + w
+    let c random 9
+    if c < w [ set state 1 ]
+    if c > w and c <= b [ set state 2 ]
+    setcolor
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-647
-448
+608
+409
 -1
 -1
-13.0
+6.0
 1
 10
 1
@@ -69,10 +60,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-32
+32
+-32
+32
 0
 0
 1
@@ -80,10 +71,10 @@ ticks
 30.0
 
 BUTTON
-36
-45
-103
-78
+32
+42
+99
+75
 NIL
 setup
 NIL
@@ -96,61 +87,11 @@ NIL
 NIL
 1
 
-SLIDER
-29
-90
-201
-123
-mu-green
-mu-green
-0
-1
-0.35
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-29
-127
-201
-160
-mu-blue
-mu-blue
-0
-1
-0.363
-0.001
-1
-NIL
-HORIZONTAL
-
-PLOT
-22
-463
-277
-678
-plot 1
-NIL
-NIL
-0.0
-5.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -2674135 true "" "plot total-ground"
-"pen-1" 1.0 0 -13840069 true "" "plot total-green"
-"pen-2" 1.0 0 -13345367 true "" "plot total-blue"
-
 BUTTON
 35
-219
+109
 98
-252
+142
 NIL
 go
 T
@@ -162,21 +103,6 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-30
-163
-202
-196
-death-rate
-death-rate
-0
-0.1
-0.034
-0.001
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
