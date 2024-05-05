@@ -1,6 +1,5 @@
 patches-own[
   state
-  state-next
 ]
 
 to setcolor
