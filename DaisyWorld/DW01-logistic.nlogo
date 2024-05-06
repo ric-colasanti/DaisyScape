@@ -163,7 +163,7 @@ mu-green
 mu-green
 0
 1
-1.0
+0.503
 0.001
 1
 NIL
@@ -178,7 +178,7 @@ mu-blue
 mu-blue
 0
 1
-1.0
+0.503
 0.001
 1
 NIL
@@ -307,8 +307,8 @@ max_solar_luminosity
 max_solar_luminosity
 0.8
 2.0
-1.8
-1
+1.515
+0.001
 1
 NIL
 HORIZONTAL
@@ -322,11 +322,22 @@ solar_luminosity_rate_of_change
 solar_luminosity_rate_of_change
 0.000000
 0.001
-1.0E-4
+5.0E-5
 0.00001
 1
 NIL
 HORIZONTAL
+
+MONITOR
+180
+331
+292
+376
+NIL
+solar_luminosity
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
