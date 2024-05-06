@@ -56,7 +56,7 @@ to setup
   set ground_albedo 0.5
   set sb_constant 5.67e-8
   set solar_flux_constant 917
-  set heat_absorption_factor 20
+  set heat_absorption_factor 20d
 
   set number_of_patches  128 ^ 2
 

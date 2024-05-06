@@ -1,4 +1,14 @@
 globals[
+  sb_constant
+  solar_flux_constant
+  global_temperature
+  heat_absorption_factor
+
+  green_albedo
+  blue_albedo
+  ground_albedo
+
+
   total-ground
   total-green
   total-blue
@@ -9,16 +19,44 @@ patches-own[
   daisy-blue
   ground
 ]
-;pcolor (list rgb-red rgb-green rgb-blue)
+
+to-report temperature [ albedo ]
+  report ( ( ( ( solar_luminosity * solar_flux_constant ) * ( 1 - albedo ) ) / sb_constant ) ^ 0.25 ) - 273
+end
+
+
+
+
 to setup
   clear-all
+
+  set blue_albedo 0.25
+  set green_albedo 0.75
+  set ground_albedo 0.5
+  set sb_constant 5.67e-8
+  set solar_flux_constant 917
+  set heat_absorption_factor 20
+
+  set total-ground 0
+  set total-green 0
+  set total-blue 0
+
   ask patches[
     set daisy-green random-float  0.2
     set daisy-blue random-float  0.2
     set ground 1 - ( daisy-green + daisy-blue )
 
     set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
+    set total-ground total-ground + ground
+    set total-green  total-green + daisy-green
+    set total-blue total-blue + daisy-blue
   ]
+
+  set total-ground total-ground / ( 32 * 32 )
+  set total-green total-green / ( 32 * 32 )
+  set total-blue total-blue / ( 32 * 32 )
+  set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
+
   reset-ticks
 end
 
@@ -29,9 +67,18 @@ to go
   set total-green 0
   set total-blue 0
 
+  set solar_luminosity solar_luminosity + 0.0001
   ask patches[
-    let g  daisy-green * mu-green * ground
-    let b  daisy-blue * mu-blue * ground
+    let albedo ( ( ground * ground_albedo) + ( daisy-green * green_albedo) + ( daisy-blue * blue_albedo) )
+    let green_temp heat_absorption_factor * ( albedo - ( daisy-green * green_albedo) )  + global_temperature
+    let blue_temp heat_absorption_factor * ( albedo - ( daisy-blue * blue_albedo) )  + global_temperature
+    let green_growth_factor  ( 1 - 0.003265 * ( 22.5 - green_temp  ) ^ 2 )
+    let blue_growth_factor  ( 1 - 0.003265 * ( 22.5 - blue_temp  ) ^ 2 )
+
+
+
+    let g  daisy-green * mu-green * green_growth_factor * ground
+    let b  daisy-blue * mu-blue * blue_growth_factor *  ground
 
     let dg  daisy-green * death-rate
     let db  daisy-blue * death-rate
@@ -44,11 +91,24 @@ to go
     set total-green  total-green + daisy-green
     set total-blue total-blue + daisy-blue
 
+    if ground > 1 [ set ground 1 ]
+    if ground < 0 [ set ground 0 ]
+
+    if daisy-green > 1 [ set daisy-green 1 ]
+    if daisy-green < 0 [ set daisy-green 0 ]
+
+    if daisy-blue > 1 [ set daisy-blue 1 ]
+    if daisy-blue < 0 [ set daisy-blue 0 ]
+
+
+
+
     set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
   ]
   set total-ground total-ground / ( 32 * 32 )
   set total-green total-green / ( 32 * 32 )
   set total-blue total-blue / ( 32 * 32 )
+  set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
   tick
 end
 @#$#@#$#@
@@ -105,7 +165,7 @@ mu-green
 mu-green
 0
 1
-0.35
+1.0
 0.001
 1
 NIL
@@ -120,7 +180,7 @@ mu-blue
 mu-blue
 0
 1
-0.363
+1.0
 0.001
 1
 NIL
@@ -131,7 +191,7 @@ PLOT
 463
 277
 678
-plot 1
+Population
 NIL
 NIL
 0.0
@@ -139,18 +199,18 @@ NIL
 0.0
 1.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot total-ground"
-"pen-1" 1.0 0 -13840069 true "" "plot total-green"
-"pen-2" 1.0 0 -13345367 true "" "plot total-blue"
+"Ground" 1.0 0 -2674135 true "" "plot total-ground"
+"Green daisy" 1.0 0 -13840069 true "" "plot total-green"
+"Blue Daisy" 1.0 0 -13345367 true "" "plot total-blue"
 
 BUTTON
-35
-219
-98
-252
+106
+45
+169
+78
 NIL
 go
 T
@@ -172,11 +232,73 @@ death-rate
 death-rate
 0
 0.1
-0.034
+0.1
 0.001
 1
 NIL
 HORIZONTAL
+
+SLIDER
+30
+199
+202
+232
+solar_luminosity
+solar_luminosity
+0.7
+1.8
+1.779299999999881
+0.01
+1
+NIL
+HORIZONTAL
+
+MONITOR
+729
+55
+862
+100
+NIL
+global_temperature
+17
+1
+11
+
+PLOT
+287
+464
+548
+676
+Global temperature centigrade
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -2674135 true "" "plot global_temperature"
+
+PLOT
+557
+464
+807
+677
+Solar luminosity
+NIL
+NIL
+0.0
+10.0
+0.6
+2.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot solar_luminosity"
 
 @#$#@#$#@
 ## WHAT IS IT?
