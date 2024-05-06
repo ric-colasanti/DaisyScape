@@ -4,7 +4,7 @@ globals[
   global_temperature
   planet_temperature
   heat_absorption_factor
-  solar_luminosity
+
 
   green_albedo
   blue_albedo
@@ -30,6 +30,17 @@ to-report temperature [ albedo ]
   report ( ( ( ( solar_luminosity * solar_flux_constant ) * ( 1 - albedo ) ) / sb_constant ) ^ 0.25 ) - 273
 end
 
+
+to add_sheep
+  create-sheep max-pxcor
+  [
+    set shape  "sheep"
+    set color white
+    set energy random 9
+    setxy random-xcor random-ycor
+  ]
+end
+
 to setup
   clear-all
  ;;; Set constanta
@@ -39,7 +50,7 @@ to setup
   set sb_constant 5.67e-8
   set solar_flux_constant 917
   set heat_absorption_factor 20
-  set solar_luminosity min_solar_luminosity
+
 
   set total-ground 0
   set total-green 0
@@ -64,13 +75,7 @@ to setup
   set total-blue total-blue / ( world_size )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
 
-  create-sheep max-pxcor
-  [
-    set shape  "sheep"
-    set color white
-    set energy random 9
-    setxy random-xcor random-ycor
-  ]
+
 
   reset-ticks
 end
@@ -79,7 +84,7 @@ to move
   rt random 50
   lt random 50
   fd 1
-  set energy energy - 0.4
+  set energy energy - maintanence
 end
 
 to death
@@ -88,11 +93,11 @@ end
 
 to eat-grass
   let consume 0
-  if daisy-green > 0.1 [
+  if daisy-green > 0.1 and eat_green [
     set consume consume + ( daisy-green * 0.9 * energy_from_plants )
     set daisy-green daisy-green * 0.9
   ]
-  if daisy-blue > 0.1 [
+  if daisy-blue > 0.1 and eat_blue [
     set consume consume + ( daisy-blue * 0.9 * energy_from_plants )
     set daisy-blue daisy-blue * 0.9
   ]
@@ -113,9 +118,7 @@ to go
   set total-green 0
   set total-blue 0
 
-  if solar_luminosity < max_solar_luminosity [
-    set solar_luminosity solar_luminosity + solar_luminosity_rate_of_change
-  ]
+
  ask sheep [
     move
     eat-grass
@@ -195,10 +198,10 @@ ticks
 30.0
 
 BUTTON
-36
-45
-103
-78
+27
+44
+94
+77
 NIL
 setup
 NIL
@@ -212,30 +215,30 @@ NIL
 1
 
 SLIDER
-29
-90
-201
-123
+28
+164
+200
+197
 mu-green
 mu-green
 0
 1
-1.0
+0.503
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-29
-127
+28
 201
-160
+200
+234
 mu-blue
 mu-blue
 0
 1
-1.0
+0.51
 0.001
 1
 NIL
@@ -262,10 +265,10 @@ PENS
 "Blue Daisy" 1.0 0 -13345367 true "" "plot total-blue"
 
 BUTTON
-106
-45
-169
-78
+97
+44
+160
+77
 NIL
 go
 T
@@ -279,30 +282,30 @@ NIL
 1
 
 SLIDER
-30
-163
-202
-196
+29
+237
+201
+270
 death-rate
 death-rate
 0
 0.1
-0.001
+0.02
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-31
-210
-221
-243
-min_solar_luminosity
-min_solar_luminosity
+30
+284
+220
+317
+solar_luminosity
+solar_luminosity
 0.7
 1.8
-0.7
+1.12
 0.01
 1
 NIL
@@ -356,36 +359,6 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot solar_luminosity"
 
-SLIDER
-31
-246
-221
-279
-max_solar_luminosity
-max_solar_luminosity
-0.8
-2.0
-2.0
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-32
-284
-293
-317
-solar_luminosity_rate_of_change
-solar_luminosity_rate_of_change
-0.000000
-0.001
-1.0E-4
-0.00001
-1
-NIL
-HORIZONTAL
-
 MONITOR
 179
 364
@@ -406,7 +379,7 @@ energy_from_plants
 energy_from_plants
 0
 1
-0.5
+0.6
 0.01
 1
 NIL
@@ -429,6 +402,60 @@ false
 "" ""
 PENS
 "sheep" 1.0 0 -16777216 true "" "plot count turtles"
+
+BUTTON
+27
+110
+128
+143
+NIL
+add_sheep
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+169
+85
+290
+118
+eat_green
+eat_green
+0
+1
+-1000
+
+SWITCH
+170
+119
+281
+152
+eat_blue
+eat_blue
+0
+1
+-1000
+
+SLIDER
+254
+167
+291
+317
+maintanence
+maintanence
+0
+1
+0.1
+0.01
+1
+NIL
+VERTICAL
 
 @#$#@#$#@
 ## WHAT IS IT?
