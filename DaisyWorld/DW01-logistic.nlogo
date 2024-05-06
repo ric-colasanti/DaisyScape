@@ -342,7 +342,36 @@ solar_luminosity
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+### Daisyworld: A Thermostat Planet
+
+Daisyworld is  where the only plants are black and white daisies. These daisies play a crucial role in regulating the planet's temperature through a property called albedo. Albedo determines how much sunlight a surface reflects. White daisies, with their high albedo, act like tiny mirrors, reflecting sunlight back into space and keeping things cool. Conversely, black daisies have a low albedo, absorbing more sunlight and warming their surroundings.
+This is a geographical model where the world's surface is divided into square areas. Each area can hold a specific number of plants, representing its carrying capacity. The growth pattern of the two plant types, white and black daisies, is described by the logistic equation. This equation takes into account the limitation of resources. It depicts an S-shaped curve, where plant size initially increases quickly due to favorable conditions. However, as the plant population grows, factors such as competition for space restrict growth, causing the curve to level out.
+
+**X_(n+1) = mu * X_n * (1 - X_n / K)**
+
+where:
+**X_(n+1)** represents the population of the plant type (white or black daisy) at the next time step
+**X_n** represents the current population of the plant type .
+mu is the intrinsic growth rate (positive value between 0 and 1). This reflects how fast the plant population would grow under ideal conditions with unlimited resources.
+**K** is the carrying capacity of the patch (the maximum number of plants the patch can sustain).
+In this model all the patches act independently.
+
+### Calculation of temperature from solar flux and ground aldobe
+
+
+**temperature = (((Solar_Luminosity * Solar_Flux_Constant ) * ( 1 - Albedo )) / Stefan-Boltzmann_Constant ) ^ (1/4)) - 273.15**
+
+**Solar_Luminosity**: This represents the total power emitted by the Sun.
+**Solar_Flux_Constant**: This is the amount of solar irradiance (energy per unit area per unit time) that reaches the Earth's upper atmosphere.
+**Albedo**: This is a dimensionless quantity between 0 and 1 representing the fraction of solar radiation that gets reflected back into space by Earth's atmosphere and surface. A higher albedo means more reflection and less absorption, leading to a cooler planet.
+**Stefan-Boltzmann_Constant (σ)**: This is a fundamental constant in physics that relates the temperature of an object to the total radiant energy power per unit area emitted by the object.
+
+**Steps involved**:
+**Solar Energy Reaching Earth**: The term **(Solar_Luminosity * Solar_Flux_Constant)** represents the total solar energy hitting the Earth's surface after accounting for distance from the Sun.
+**Accounting for Reflection**: **(1 - Albedo)** represents the portion of solar energy absorbed by the Earth after accounting for albedo.
+**Energy Balance**: This term is divided by the Stefan-Boltzmann constant (σ) to convert the energy absorbed into a temperature equivalent.
+**Taking the Fourth Root**: Raising the result to the power of 1/4 converts the radiant energy into an effective temperature. This is because the Stefan-Boltzmann equation relates temperature to the fourth power of radiated energy.
+**Converting to Celsius**: Finally, 273.15 (absolute zero in Celsius) is subtracted to convert the effective temperature to degrees Celsius.
 
 ## HOW IT WORKS
 

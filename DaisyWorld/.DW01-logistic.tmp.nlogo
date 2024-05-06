@@ -2,9 +2,8 @@ globals[
   sb_constant
   solar_flux_constant
   global_temperature
-  planet_temperature
   heat_absorption_factor
-
+  solar_luminosity
 
   green_albedo
   blue_albedo
@@ -13,8 +12,6 @@ globals[
   total-ground
   total-green
   total-blue
-
-  world_size
 ]
 
 patches-own[
@@ -23,41 +20,24 @@ patches-own[
   ground
 ]
 
-breed [ sheep a-sheep ]
-turtles-own [ energy ]
-
 to-report temperature [ albedo ]
   report ( ( ( ( solar_luminosity * solar_flux_constant ) * ( 1 - albedo ) ) / sb_constant ) ^ 0.25 ) - 273
 end
 
-
-to add_sheep
-  create-sheep max-pxcor
-  [
-    set shape  "sheep"
-    set color white
-    set energy random 9
-    setxy random-xcor random-ycor
-  ]
-end
-
 to setup
   clear-all
- ;;; Set constanta
+
   set blue_albedo 0.25
   set green_albedo 0.75
   set ground_albedo 0.5
   set sb_constant 5.67e-8
   set solar_flux_constant 917
   set heat_absorption_factor 20
-
+  set solar_luminosity min_solar_luminosity
 
   set total-ground 0
   set total-green 0
   set total-blue 0
-
-
-  set world_size max-pxcor * max-pycor
 
   ask patches[
     set daisy-green random-float  0.2
@@ -70,47 +50,14 @@ to setup
     set total-blue total-blue + daisy-blue
   ]
 
-  set total-ground total-ground / ( world_size )
-  set total-green total-green / ( world_size )
-  set total-blue total-blue / ( world_size )
+  set total-ground total-ground / ( 32 * 32 )
+  set total-green total-green / ( 32 * 32 )
+  set total-blue total-blue / ( 32 * 32 )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
-
-
 
   reset-ticks
 end
 
-to move
-  rt random 50
-  lt random 50
-  fd 1
-  set energy energy - 0.1
-end
-
-to death
-  if energy < 0 [ die ]
-end
-
-to eat-grass
-  let consume 0
-  if daisy-green > 0.1 and eat_green [
-    set consume consume + ( daisy-green * 0.9 * energy_from_plants )
-    set daisy-green daisy-green * 0.9
-  ]
-  if daisy-blue > 0.1 and eat_blue [
-    set consume consume + ( daisy-blue * 0.9 * energy_from_plants )
-    set daisy-blue daisy-blue * 0.9
-  ]
-  set energy energy + consume
-  set ground 1 - ( daisy-green + daisy-blue )
-end
-
-to reproduce-sheep  ; sheep procedure
-  if energy > 10 [
-      set energy energy - 10                ; divide energy between parent and offspring
-      hatch 1 [ rt random-float 360 fd 1 ]   ; hatch an offspring and move it forward 1 step
-  ]
-end
 
 to go
 
@@ -118,15 +65,10 @@ to go
   set total-green 0
   set total-blue 0
 
-
- ask sheep [
-    move
-    eat-grass
-    reproduce-sheep
-    death
+  if solar_luminosity < max_solar_luminosity [
+    set solar_luminosity solar_luminosity + solar_luminosity_rate_of_change
   ]
-
-  ask patches[
+ ask patches[
     let albedo ( ( ground * ground_albedo) + ( daisy-green * green_albedo) + ( daisy-blue * blue_albedo) )
     let green_temp heat_absorption_factor * ( albedo - ( daisy-green * green_albedo) )  + global_temperature
     let blue_temp heat_absorption_factor * ( albedo - ( daisy-blue * blue_albedo) )  + global_temperature
@@ -141,8 +83,8 @@ to go
     let dg  daisy-green * death-rate
     let db  daisy-blue * death-rate
 
-    set daisy-green daisy-green + g - dg  + 0.00001
-    set daisy-blue daisy-blue + b - db + 0.00001
+    set daisy-green daisy-green + g - dg
+    set daisy-blue daisy-blue + b - db
     set ground 1 - ( daisy-green + daisy-blue )
 
     set total-ground total-ground + ground
@@ -161,23 +103,21 @@ to go
     set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
   ]
 
-  set total-ground total-ground / ( world_size )
-  set total-green total-green / ( world_size )
-  set total-blue total-blue / ( world_size )
+  set total-ground total-ground / ( 32 * 32 )
+  set total-green total-green / ( 32 * 32 )
+  set total-blue total-blue / ( 32 * 32 )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
-  set planet_temperature temperature ground_albedo
-
   tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 330
 10
-748
-429
+767
+448
 -1
 -1
-10.0
+13.0
 1
 10
 1
@@ -187,36 +127,21 @@ GRAPHICS-WINDOW
 1
 1
 1
-0
-40
-0
-40
+-16
+16
+-16
+16
 0
 0
 1
 ticks
 30.0
 
-SLIDER
-0
-0
-0
-0
-NIL
-NIL
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-27
-44
-94
-77
+36
+45
+103
+78
 NIL
 setup
 NIL
@@ -230,43 +155,43 @@ NIL
 1
 
 SLIDER
-28
-164
-200
-197
+29
+90
+201
+123
 mu-green
 mu-green
 0
 1
-1.0
+0.503
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-28
+29
+127
 201
-200
-234
+160
 mu-blue
 mu-blue
 0
 1
-1.0
+0.503
 0.001
 1
 NIL
 HORIZONTAL
 
 PLOT
-400
+524
 474
-655
+779
 689
 Population
-time
-ground cover
+NIL
+NIL
 0.0
 5.0
 0.0
@@ -280,10 +205,10 @@ PENS
 "Blue Daisy" 1.0 0 -13345367 true "" "plot total-blue"
 
 BUTTON
-97
-44
-160
-77
+106
+45
+169
+78
 NIL
 go
 T
@@ -297,40 +222,40 @@ NIL
 1
 
 SLIDER
-29
-237
-201
-270
+30
+163
+202
+196
 death-rate
 death-rate
 0
 0.1
-0.015
+0.1
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-30
-284
-220
-317
-solar_luminosity
-solar_luminosity
+31
+210
+221
+243
+min_solar_luminosity
+min_solar_luminosity
 0.7
 1.8
-1.04
+0.7
 0.01
 1
 NIL
 HORIZONTAL
 
 MONITOR
-32
-363
-165
-408
+33
+330
+166
+375
 NIL
 global_temperature
 2
@@ -338,32 +263,31 @@ global_temperature
 11
 
 PLOT
-162
-476
-401
-688
+259
+477
+520
+689
 Global temperature centigrade
-time
-temperature
+NIL
+NIL
 0.0
 10.0
 0.0
 10.0
 true
-true
+false
 "" ""
 PENS
-"global_temp" 1.0 0 -2674135 true "" "plot global_temperature"
-"planet_temp" 1.0 0 -7500403 true "" "plot planet_temperature"
+"default" 1.0 0 -2674135 true "" "plot global_temperature"
 
 PLOT
 4
 475
-164
+254
 688
 Solar luminosity
-time
-luminosity
+NIL
+NIL
 0.0
 10.0
 0.6
@@ -374,154 +298,48 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot solar_luminosity"
 
+SLIDER
+31
+246
+221
+279
+max_solar_luminosity
+max_solar_luminosity
+0.8
+2.0
+1.515
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+32
+284
+293
+317
+solar_luminosity_rate_of_change
+solar_luminosity_rate_of_change
+0.000000
+0.001
+5.0E-5
+0.00001
+1
+NIL
+HORIZONTAL
+
 MONITOR
-179
-364
-291
-409
+180
+331
+292
+376
 NIL
 solar_luminosity
 2
 1
 11
 
-SLIDER
-32
-326
-212
-359
-energy_from_plants
-energy_from_plants
-0
-1
-0.6
-0.01
-1
-NIL
-HORIZONTAL
-
-PLOT
-654
-474
-860
-688
-sheep
-time
-num of sheep
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"sheep" 1.0 0 -16777216 true "" "plot count turtles"
-
-BUTTON
-27
-110
-128
-143
-NIL
-add_sheep
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SWITCH
-169
-85
-290
-118
-eat_green
-eat_green
-0
-1
--1000
-
-SWITCH
-170
-119
-281
-152
-eat_blue
-eat_blue
-0
-1
--1000
-
 @#$#@#$#@
-## WHAT IS IT?
-
-### Daisyworld: A Thermostat Planet
-
-Daisyworld is  where the only plants are black and white daisies. These daisies play a crucial role in regulating the planet's temperature through a property called albedo. Albedo determines how much sunlight a surface reflects. White daisies, with their high albedo, act like tiny mirrors, reflecting sunlight back into space and keeping things cool. Conversely, black daisies have a low albedo, absorbing more sunlight and warming their surroundings.
-This is a geographical model where the world's surface is divided into square areas. Each area can hold a specific number of plants, representing its carrying capacity. The growth pattern of the two plant types, white and black daisies, is described by the logistic equation. This equation takes into account the limitation of resources. It depicts an S-shaped curve, where plant size initially increases quickly due to favorable conditions. However, as the plant population grows, factors such as competition for space restrict growth, causing the curve to level out.
-
-**X_(n+1) = mu * X_n * (1 - X_n / K)**
-
-where:
-**X_(n+1)** represents the population of the plant type (white or black daisy) at the next time step
-**X_n** represents the current population of the plant type .
-mu is the intrinsic growth rate (positive value between 0 and 1). This reflects how fast the plant population would grow under ideal conditions with unlimited resources.
-**K** is the carrying capacity of the patch (the maximum number of plants the patch can sustain).
-In this model all the patches act independently.
-
-### Calculation of temperature from solar flux and ground aldobe
-
-
-**temperature = (((Solar_Luminosity * Solar_Flux_Constant ) * ( 1 - Albedo )) / Stefan-Boltzmann_Constant ) ^ (1/4)) - 273.15**
-
-**Solar_Luminosity**: This represents the total power emitted by the Sun.
-**Solar_Flux_Constant**: This is the amount of solar irradiance (energy per unit area per unit time) that reaches the Earth's upper atmosphere.
-**Albedo**: This is a dimensionless quantity between 0 and 1 representing the fraction of solar radiation that gets reflected back into space by Earth's atmosphere and surface. A higher albedo means more reflection and less absorption, leading to a cooler planet.
-**Stefan-Boltzmann_Constant (σ)**: This is a fundamental constant in physics that relates the temperature of an object to the total radiant energy power per unit area emitted by the object.
-
-**Steps involved**:
-**Solar Energy Reaching Earth**: The term **(Solar_Luminosity * Solar_Flux_Constant)** represents the total solar energy hitting the Earth's surface after accounting for distance from the Sun.
-**Accounting for Reflection**: **(1 - Albedo)** represents the portion of solar energy absorbed by the Earth after accounting for albedo.
-**Energy Balance**: This term is divided by the Stefan-Boltzmann constant (σ) to convert the energy absorbed into a temperature equivalent.
-**Taking the Fourth Root**: Raising the result to the power of 1/4 converts the radiant energy into an effective temperature. This is because the Stefan-Boltzmann equation relates temperature to the fourth power of radiated energy.
-**Converting to Celsius**: Finally, 273.15 (absolute zero in Celsius) is subtracted to convert the effective temperature to degrees Celsius.
-
-## HOW IT WORKS
-
-(what rules the agents use to create the overall behavior of the model)
-
-## HOW TO USE IT
-
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
