@@ -2,6 +2,7 @@ globals[
   sb_constant
   solar_flux_constant
   global_temperature
+  planet_temperature
   heat_absorption_factor
   solar_luminosity
 
@@ -135,8 +136,8 @@ to go
     let dg  daisy-green * death-rate
     let db  daisy-blue * death-rate
 
-    set daisy-green daisy-green + g - dg
-    set daisy-blue daisy-blue + b - db
+    set daisy-green daisy-green + g - dg  + 0.00001
+    set daisy-blue daisy-blue + b - db + 0.00001
     set ground 1 - ( daisy-green + daisy-blue )
 
     set total-ground total-ground + ground
@@ -159,7 +160,7 @@ to go
   set total-green total-green / ( 32 * 32 )
   set total-blue total-blue / ( 32 * 32 )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
-
+  set planet_temperature temperature ground_albedo
 
   tick
 end
@@ -284,7 +285,7 @@ death-rate
 death-rate
 0
 0.1
-0.022
+0.001
 0.001
 1
 NIL
@@ -329,10 +330,11 @@ temperature
 0.0
 10.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot global_temperature"
+"global_temp" 1.0 0 -2674135 true "" "plot global_temperature"
+"planet_temp" 1.0 0 -7500403 true "" "plot planet_temperature"
 
 PLOT
 4
