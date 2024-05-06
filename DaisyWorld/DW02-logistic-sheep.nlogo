@@ -13,6 +13,8 @@ globals[
   total-ground
   total-green
   total-blue
+
+  world_size
 ]
 
 patches-own[
@@ -43,6 +45,8 @@ to setup
   set total-green 0
   set total-blue 0
 
+  set world_size max-pxcor * max-pycor
+
   ask patches[
     set daisy-green random-float  0.2
     set daisy-blue random-float  0.2
@@ -54,19 +58,16 @@ to setup
     set total-blue total-blue + daisy-blue
   ]
 
-  set total-ground total-ground / ( 32 * 32 )
-  set total-green total-green / ( 32 * 32 )
-  set total-blue total-blue / ( 32 * 32 )
+  set total-ground total-ground / ( world_size )
+  set total-green total-green / ( world_size )
+  set total-blue total-blue / ( world_size )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
 
-  create-sheep 30
+  create-sheep max-pxcor
   [
     set shape  "sheep"
     set color white
-    set size 1.5  ; easier to see
-    set label-color blue - 2
-    set energy random 8
-
+    set energy random 9
     setxy random-xcor random-ycor
   ]
 
@@ -156,9 +157,9 @@ to go
     set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
   ]
 
-  set total-ground total-ground / ( 32 * 32 )
-  set total-green total-green / ( 32 * 32 )
-  set total-blue total-blue / ( 32 * 32 )
+  set total-ground total-ground / ( world_size )
+  set total-green total-green / ( world_size )
+  set total-blue total-blue / ( world_size )
   set global_temperature temperature ( ( total-ground * ground_albedo) + ( total-green * green_albedo) + ( total-blue * blue_albedo) )
   set planet_temperature temperature ground_albedo
 
@@ -168,11 +169,11 @@ end
 GRAPHICS-WINDOW
 330
 10
-767
-448
+748
+429
 -1
 -1
-13.0
+10.0
 1
 10
 1
@@ -182,10 +183,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+0
+40
+0
+40
 0
 0
 1
