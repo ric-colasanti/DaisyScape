@@ -3,11 +3,11 @@ globals[
   solar_flux_constant
   global_temperature
   heat_absorption_factor
+  solar_luminosity
 
   green_albedo
   blue_albedo
   ground_albedo
-
 
   total-ground
   total-green
@@ -24,9 +24,6 @@ to-report temperature [ albedo ]
   report ( ( ( ( solar_luminosity * solar_flux_constant ) * ( 1 - albedo ) ) / sb_constant ) ^ 0.25 ) - 273
 end
 
-
-
-
 to setup
   clear-all
 
@@ -36,6 +33,7 @@ to setup
   set sb_constant 5.67e-8
   set solar_flux_constant 917
   set heat_absorption_factor 20
+  set solar_luminosity min_solar_luminosity
 
   set total-ground 0
   set total-green 0
@@ -67,8 +65,10 @@ to go
   set total-green 0
   set total-blue 0
 
-  set solar_luminosity solar_luminosity + 0.0001
-  ask patches[
+  if solar_luminosity < max_solar_luminosity [
+    set solar_luminosity solar_luminosity + solar_luminosity_rate_of_change
+  ]
+ ask patches[
     let albedo ( ( ground * ground_albedo) + ( daisy-green * green_albedo) + ( daisy-blue * blue_albedo) )
     let green_temp heat_absorption_factor * ( albedo - ( daisy-green * green_albedo) )  + global_temperature
     let blue_temp heat_absorption_factor * ( albedo - ( daisy-blue * blue_albedo) )  + global_temperature
@@ -100,11 +100,9 @@ to go
     if daisy-blue > 1 [ set daisy-blue 1 ]
     if daisy-blue < 0 [ set daisy-blue 0 ]
 
-
-
-
     set pcolor  (list (ground * 255) (daisy-green * 255)  (daisy-blue * 255))
   ]
+
   set total-ground total-ground / ( 32 * 32 )
   set total-green total-green / ( 32 * 32 )
   set total-blue total-blue / ( 32 * 32 )
@@ -113,9 +111,9 @@ to go
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+330
 10
-647
+767
 448
 -1
 -1
@@ -187,10 +185,10 @@ NIL
 HORIZONTAL
 
 PLOT
-22
-463
-277
-678
+524
+474
+779
+689
 Population
 NIL
 NIL
@@ -239,36 +237,36 @@ NIL
 HORIZONTAL
 
 SLIDER
-30
-199
-202
-232
-solar_luminosity
-solar_luminosity
+31
+210
+221
+243
+min_solar_luminosity
+min_solar_luminosity
 0.7
 1.8
-1.779299999999881
+0.7
 0.01
 1
 NIL
 HORIZONTAL
 
 MONITOR
-729
-55
-862
-100
+33
+330
+166
+375
 NIL
 global_temperature
-17
+2
 1
 11
 
 PLOT
-287
-464
-548
-676
+259
+477
+520
+689
 Global temperature centigrade
 NIL
 NIL
@@ -283,10 +281,10 @@ PENS
 "default" 1.0 0 -2674135 true "" "plot global_temperature"
 
 PLOT
-557
-464
-807
-677
+4
+475
+254
+688
 Solar luminosity
 NIL
 NIL
@@ -299,6 +297,36 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot solar_luminosity"
+
+SLIDER
+31
+246
+221
+279
+max_solar_luminosity
+max_solar_luminosity
+0.8
+2.0
+1.8
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+32
+284
+293
+317
+solar_luminosity_rate_of_change
+solar_luminosity_rate_of_change
+0.000000
+0.001
+1.0E-4
+0.00001
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
